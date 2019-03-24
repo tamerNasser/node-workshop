@@ -15,6 +15,9 @@ let exType = {
   },
   css: {
     "Content-Type": "text/css"
+  },
+  js: {
+    "Content-Type": "application/javascript"
   }
 };
 
@@ -45,9 +48,37 @@ const handleForm = (response, request) => {
 
   request.on("end", function() {
     let convertedData = querystring.parse(allTheData);
-    console.log(convertedData);
-    response.writeHead(302, { Location: "/" });
-    response.end();
+    // console.log(convertedData);
+    // console.log(allTheData);
+    let timestamp = Date.now();
+    let postmsg = convertedData["post"];
+
+    console.log(convertedData["post"]);
+    let currentblogs = {};
+    filePath = path.join(__dirname, "posts.json");
+    fs.readFile(filePath, (error, file) => {
+      if (error) {
+        response.writeHead(500);
+        response.end(error500);
+      } else {
+        // console.log(JSON.parse(file));
+        Object.assign(currentblogs, JSON.parse(file));
+        currentblogs[timestamp] = postmsg;
+        fs.writeFile("./src/posts.json", JSON.stringify(currentblogs), error => {
+          if (error) {
+            console.log(error);
+          } else {
+            response.writeHead(302, {
+              Location: "/"
+            });
+            response.end();
+          }
+
+          // response.end(file);
+        });
+      }
+      console.log(currentblogs);
+    });
   });
 };
 
@@ -66,4 +97,23 @@ const handlePublic = (response, url) => {
   });
 };
 
-module.exports = { handleHome, handleForm, handlePublic };
+const handlePosts = (response, request) => {
+  filePath = path.join(__dirname, "posts.json");
+  fs.readFile(filePath, (error, file) => {
+    if (error) {
+      response.writeHead(500);
+      response.end(error500);
+    } else {
+      // console.log(JSON.parse(file));
+      response.writeHead(200,{"content-type":"application/json"});
+      response.end(file);
+    }
+  });
+};
+
+module.exports = {
+  handleHome,
+  handleForm,
+  handlePublic,
+  handlePosts
+};
