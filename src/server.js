@@ -18,6 +18,9 @@ const handler = (request, response) => {
         response.end(file);
       }
     });
+  } else {
+    esponse.writeHead(404);
+    response.end("404 error not found");
   }
 };
 
