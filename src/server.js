@@ -6,20 +6,53 @@ let message = "I am so happy to be part of the Node not Girls workshop!";
 
 const handler = (request, response) => {
   const url = request.url;
-  let filePath = path.join(__dirname, "..", "public", "index.html");
+  let filePath;
 
   if (url === "/") {
+    filePath = path.join(__dirname, "..", "public", "index.html");
+
     fs.readFile(filePath, (error, file) => {
       if (error) {
         response.writeHead(500);
         response.end("500 error not found");
       } else {
-        response.writeHead(200, { "Content-Type": "text/html" });
+        response.writeHead(200, {
+          "Content-Type": "text/html"
+        });
         response.end(file);
       }
     });
-  } else {
-    esponse.writeHead(404);
+  } else if(url === "/img/image.jpg"){
+
+    filePath = path.join(__dirname, "..", "public", "img", "image.jpg");
+    fs.readFile(filePath, (error, file) => {
+      if (error) {
+        response.writeHead(500);
+        response.end("500 error not found");
+      } else {
+        response.writeHead(200, {
+          "Content-Type": "text/html"
+        });
+        response.end(file);
+      }
+    });
+
+  } else if(url == "/main.css"){
+    filePath = path.join(__dirname, "..", "public", "main.css");
+    fs.readFile(filePath, (error, file) => {
+      if (error) {
+        response.writeHead(500);
+        response.end("500 error not found");
+      } else {
+        response.writeHead(200, {
+          "Content-Type": "text/css"
+        });
+        response.end(file);
+      }
+    });
+  }
+  else {
+    response.writeHead(404);
     response.end("404 error not found");
   }
 };
