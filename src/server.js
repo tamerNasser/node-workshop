@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const querystring = require('querystring');
 
 let message = "I am so happy to be part of the Node not Girls workshop!";
 
@@ -22,7 +23,7 @@ const handler = (request, response) => {
         response.end(file);
       }
     });
-  } else if(url === "/img/image.jpg"){
+  } else if (url === "/img/image.jpg") {
 
     filePath = path.join(__dirname, "..", "public", "img", "image.jpg");
     fs.readFile(filePath, (error, file) => {
@@ -37,7 +38,7 @@ const handler = (request, response) => {
       }
     });
 
-  } else if(url == "/main.css"){
+  } else if (url == "/main.css") {
     filePath = path.join(__dirname, "..", "public", "main.css");
     fs.readFile(filePath, (error, file) => {
       if (error) {
@@ -50,8 +51,19 @@ const handler = (request, response) => {
         response.end(file);
       }
     });
-  }
-  else {
+  } else if (url === "/create-post") {
+    var allTheData = '';
+    request.on('data', function(chunkOfData) {
+      allTheData += chunkOfData;
+    });
+
+    request.on('end', function() {
+      let convertedData = querystring.parse(allTheData);
+      console.log(convertedData);
+      response.writeHead(302, {"Location": "/"});
+      response.end();
+    });
+  } else {
     response.writeHead(404);
     response.end("404 error not found");
   }
