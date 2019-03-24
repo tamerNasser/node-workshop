@@ -1,19 +1,20 @@
 const http = require("http");
 const fs = require("fs");
+const path = require("path");
 
 let message = "I am so happy to be part of the Node not Girls workshop!";
 
 const handler = (request, response) => {
   const url = request.url;
+  let filePath = path.join(__dirname, "..", "public", "index.html");
 
   if (url === "/") {
-    response.writeHead(200, { "Content-Type": "text/html" });
-
-    fs.readFile(__dirname + "/public/index.html", (error, file) => {
+    fs.readFile(filePath, (error, file) => {
       if (error) {
         response.writeHead(500);
         response.end("500 error not found");
       } else {
+        response.writeHead(200, { "Content-Type": "text/html" });
         response.end(file);
       }
     });
