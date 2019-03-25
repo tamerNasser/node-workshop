@@ -7,11 +7,13 @@ const router = (request, response) => {
 
   if (url === "/") {
     handler.handleHome(response, true);
+    
   } else if (url.indexOf(".") !== -1) {
     handler.handlePublic(response, url);
   } else if (url === "/create/post") {
     handler.handleForm(response, request);
   } else if(url === "/posts"){
+
     handler.handlePosts(response,request);
   } else {
     handler.handleHome(response, false);

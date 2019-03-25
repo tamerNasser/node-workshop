@@ -2,9 +2,11 @@ document.onreadystatechange = function () {
   if (document.readyState === 'complete') {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
+        console.log("pop");
       if(xhr.readyState === 4){
         if (xhr.status === 200){
           var data = JSON.parse(xhr.responseText);
+
           for (var blogPost in data) {
             var postDiv         = document.createElement('div');
             var postText        = document.createElement('p');
