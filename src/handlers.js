@@ -11,7 +11,7 @@ let exType = {
     "Content-Type": "text/html"
   },
   jpg: {
-    "Content-Type": "text/html"
+    "Content-Type": "text/jpeg"
   },
   css: {
     "Content-Type": "text/css"
@@ -26,9 +26,9 @@ const handleHome = (response, found) => {
     response.writeHead(404);
     response.end(error404);
   } else {
-    filePath = path.join(__dirname, "..", "public", "index.html");
+    let filePath = path.join(__dirname, "..", "public", "index.html");
 
-    fs.readFile(filePath, (error, file) => {
+    fs.readFile(filePath, (error, file) => { //// TODO:  Sync
       if (error) {
         response.writeHead(500);
         response.end(error500);
@@ -37,55 +37,44 @@ const handleHome = (response, found) => {
         response.end(file);
       }
     });
+    //handler.handlePosts(response,request);
   }
 };
 
 const handleForm = (response, request) => {
-  let allTheData = "";
-  request.on("data", function(chunkOfData) {
-    allTheData += chunkOfData;
-  });
-
-  request.on("end", function() {
-    let convertedData = querystring.parse(allTheData);
-    // console.log(convertedData);
-    // console.log(allTheData);
-    let timestamp = Date.now();
-    let postmsg = convertedData["post"];
-
-    console.log(convertedData["post"]);
-    let currentblogs = {};
-    filePath = path.join(__dirname, "posts.json");
-    fs.readFile(filePath, (error, file) => {
+  let data = ''
+  request.on('data', (chunk) => {
+    data += chunk
+  })
+  request.on('end', () => {
+    let newPost = querystring.parse(data)
+    fs.readFile(__dirname + '/posts.json', (error, file) => {
       if (error) {
-        response.writeHead(500);
-        response.end(error500);
-      } else {
-        // console.log(JSON.parse(file));
-        Object.assign(currentblogs, JSON.parse(file));
-        currentblogs[timestamp] = postmsg;
-        fs.writeFile("./src/posts.json", JSON.stringify(currentblogs), error => {
-          if (error) {
-            console.log(error);
-          } else {
-            response.writeHead(302, {
-              Location: "/"
-            });
-            response.end();
-          }
-
-          // response.end(file);
-        });
+        console.log(error)
+        return
       }
-      console.log(currentblogs);
-    });
-  });
+      let blogposts = JSON.parse(file)
+      let currentTime = Date.now()
+      blogposts[currentTime] = newPost.post
+
+      fs.writeFile(__dirname + '/posts.json', JSON.stringify(blogposts, null, 4), function(error) {
+        if (error) {
+          console.log(error)
+        }
+        response.writeHead(302, {
+          "Location": "/"
+        })
+        response.end()
+      })
+    })
+  })
+  return
 };
 
 const handlePublic = (response, url) => {
   let extension = url.split(".")[1];
 
-  filePath = path.join(__dirname, "..", "public", url);
+  let filePath = path.join(__dirname, "..", "public", url);
   fs.readFile(filePath, (error, file) => {
     if (error) {
       response.writeHead(500);
@@ -98,17 +87,16 @@ const handlePublic = (response, url) => {
 };
 
 const handlePosts = (response, request) => {
-  filePath = path.join(__dirname, "posts.json");
-  fs.readFile(filePath, (error, file) => {
-    if (error) {
-      response.writeHead(500);
-      response.end(error500);
-    } else {
-      // console.log(JSON.parse(file));
-      response.writeHead(200,{"content-type":"application/json"});
-      response.end(file);
-    }
-  });
+  response.writeHead(200, {'Content-Type': 'application/json'})
+     fs.readFile(__dirname + '/posts.json', (error, file) => {
+       if(error) {
+         console.log(error)
+         return
+       }
+       response.end(file)
+     })
+     return
+
 };
 
 module.exports = {
